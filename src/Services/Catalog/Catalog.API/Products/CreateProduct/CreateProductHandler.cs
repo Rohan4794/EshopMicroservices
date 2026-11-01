@@ -8,7 +8,7 @@ namespace Catalog.API.Products.CreateProduct
     public record CreateProductResult(Guid Id);
     internal class CreateProductCommandHandler : ICommandHandler<CreateProductCommand, CreateProductResult>
     {
-        public Task<CreateProductResult> Handle(CreateProductCommand command, CancellationToken cancellationToken)
+        public async Task<CreateProductResult> Handle(CreateProductCommand command, CancellationToken cancellationToken)
         {
             //Business Logic  to create the Product
 
@@ -21,12 +21,14 @@ namespace Catalog.API.Products.CreateProduct
                 ImageFile = command.ImageFile,
                 Price = command.Price            
             };
-            
+
+            // TODO
             // save the object data to the database
             // return the Result CreateProductResult
 
+            return new CreateProductResult(Guid.NewGuid());
 
-            throw new NotImplementedException();
+
         }
     }
 }
