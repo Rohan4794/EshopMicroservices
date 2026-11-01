@@ -1,0 +1,48 @@
+CQRS --> Why for Cross cutting concern like loggig and validation and decoupling command and query 
+
+-> we have mediator library that supports the CQRS pattern 
+-> IRequest interface that tells us that the request is either command or query
+-> IRequestHandler interface that handles the request IRequestHandler<TRequest,TResponse> where 
+TRequest is the type of request that is coming either command or query & 
+TResponse is the retrun Type which is generic based on required respone of the request raised 
+-> we can segregate the request for command and query & inherit it from the IRequest
+ICommand : IRequest<TResult>
+IQuery<TResult> : IRequest<TResult>
+-> Https request is done calls the minimal API then this create the object for command or query and delegate the 
+responsibility to the Medaitor and then this decides which handler to call which will do this operation 
+-> this Interface IRequest and ICommand cannot be used for commercial purpose from 2025
+so we can build own custom interface that provide the same features and create the object using these custom interface
+
+----------------------------------------------------------------------------------------------------------------------------
+-> Client -> HTTP Request -> Medaitor -> Command Handler -> Response
+											|
+						command OR query -> Repository -> Result
+											|
+											Database
+											
+-> public record CreateProductCommand(string Name, List<string> Category, string Description, string ImageFile, decimal Price)
+: IRequest<CreateProductResult>;  (command OR query)
+-> public record CreateProductResult(Guid Id);  (Result)
+->  internal class CreateProductCommandHandler : IRequestHandler<CreateProductCommand, CreateProductResult>
+ {
+     public Task<CreateProductResult> Handle(CreateProductCommand request, CancellationToken cancellationToken)
+     {
+         //Business Logic  to create the Product
+         throw new NotImplementedException();
+     }
+ } (Command Handler)
+ 
+-> so here CreateProductCommand is called from API because this is the request inherting IRequest<TResult>
+where TResult is the CreateProductResult which we created 
+-> automatically this calling will call our Handler i.e. CreateProductCommandHandler why becasue it is inherting 
+IRequestHandler<TRequest, TResponse> where TRequest is CreateProductCommand and 
+TResponse is TResult only which is CreateProductResult
+-> this IRequestHandler provide us Handle method which have the business logic 
+-> here we have common IRequest and IRequestHandler but we will seperate it as 
+command and query as discussed for both request and command handling for decoupling 
+and create Abstraction like ICommand, IQuery, ICommandHandler, IQueryhandler.
+
+----------------------------------------------------------------------------------------------------------------------------
+-> So common CQRS abstraction is created that project can be inherited in the microservice and utilize those 
+ICommand, IQuery, ICommandHandler, IQueryhandler for the CQRS Implementation to be used the minimal API Endpoint.
+
